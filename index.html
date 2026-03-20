@@ -9,9 +9,9 @@
 <meta property="og:title" content="CPF Retirement Gap Calculator — Are You Really Covered?">
 <meta property="og:description" content="The government tells you what you'll receive. This tells you if it's enough. Free, instant, no sign-up.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://cpfgap.sg">
+<meta property="og:url" content="https://cpfplan.sg">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="canonical" href="https://cpfgap.sg">
+<link rel="canonical" href="https://cpfplan.sg">
 <!--
 ADSENSE SETUP:
 1. Apply at adsense.google.com with your Cloudflare URL
@@ -255,7 +255,7 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:2.5r
 </head>
 <body>
 <nav>
-  <a href="/" class="nav-logo">cpf<span>gap</span>.sg</a>
+  <a href="/" class="nav-logo">cpf<span>plan</span>.sg</a>
   <span class="nav-badge">Updated for 2026</span>
 </nav>
 <div class="hero">
@@ -265,7 +265,7 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:2.5r
   <div class="hero-stats">
     <div class="hero-stat"><span class="num">$220,400</span><span class="lbl">2026 Full Retirement Sum</span></div>
     <div class="hero-stat"><span class="num">$1,780</span><span class="lbl">Avg FRS monthly payout</span></div>
-    <div class="hero-stat"><span class="num">$3,440</span><span class="lbl">ERS monthly payout</span></div>
+    <div class="hero-stat"><span class="num">$3,440</span><span class="lbl">Avg ERS monthly payout</span></div>
   </div>
 </div>
 <div class="page">
@@ -431,14 +431,14 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:2.5r
 </div>
 <footer>
   <div class="footer-inner">
-    <div class="footer-logo">cpf<span>gap</span>.sg</div>
+    <div class="footer-logo">cpf<span>plan</span>.sg</div>
     <p class="footer-disc">This calculator is provided for informational and educational purposes only. It does not constitute financial, investment, or retirement advice. All figures are estimates based on publicly available CPF Board data for 2026. Always verify your personal CPF figures at <a href="https://cpf.gov.sg" style="color:var(--green)">cpf.gov.sg</a>. Consult a MAS-licensed financial adviser for personalised advice.</p>
     <div class="footer-links">
       <a href="https://cpf.gov.sg" target="_blank" rel="noopener">CPF Board</a>
-      <a href="https://cpf.gov.sg/member/retirement-income/retirement-savings/cpf-life" target="_blank" rel="noopener">CPF LIFE</a>
+      <a href="https://www.cpf.gov.sg/member/retirement-income/monthly-payouts/cpf-life" target="_blank" rel="noopener">CPF LIFE</a>
       <a href="https://www.mas.gov.sg" target="_blank" rel="noopener">MAS</a>
     </div>
-    <p class="footer-copy">© 2026 cpfgap.sg · Independent tool · Not affiliated with the CPF Board or any government agency.</p>
+    <p class="footer-copy">© 2026 cpfplan.sg · Independent tool · Not affiliated with the CPF Board or any government agency.</p>
   </div>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -474,13 +474,23 @@ function updI(id,v){iState[id].val=parseInt(v);const a=document.getElementById('
 function getEx(){return ITEMS.reduce((s,i)=>s+(iState[i.id].on?iState[i.id].val:0),0);}
 function getSav65(){const age=parseInt(document.getElementById('age').value),el=document.getElementById('csv');if(!el)return 0;const csv=parseInt(el.value);if(age>=65)return csv;const yrs=65-age,mth=parseInt(document.getElementById('mth')?.value||0),r=growthRate/100;return Math.round(csv*Math.pow(1+r,yrs)+(r>0?mth*12*((Math.pow(1+r,yrs)-1)/r):mth*12*yrs));}
 function startVignette(){
+  clearTimeout(vigTimer);clearInterval(skipTimer);
   show('sVig');setProg(3);
   const fill=document.getElementById('vigFill');
+  const skipBtn=document.getElementById('skipBtn');
   fill.style.transition='none';fill.style.width='100%';
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{fill.style.transition='width 5s linear';fill.style.width='0%';}));
-  let count=5;const skipBtn=document.getElementById('skipBtn');skipBtn.disabled=true;document.getElementById('skipCount').textContent=count;
-  skipTimer=setInterval(()=>{count--;document.getElementById('skipCount').textContent=count;if(count<=0){clearInterval(skipTimer);skipBtn.disabled=false;skipBtn.textContent='Skip now';}},1000);
+  skipBtn.disabled=true;skipBtn.textContent='Skip in 5s';
+  document.getElementById('skipCount').textContent='5';
+  setTimeout(()=>{fill.style.transition='width 5s linear';fill.style.width='0%';},50);
+  let count=5;
+  skipTimer=setInterval(()=>{
+    count--;
+    const el=document.getElementById('skipCount');
+    if(el)el.textContent=count;
+    if(count<=0){clearInterval(skipTimer);skipBtn.disabled=false;skipBtn.textContent='Skip now';}
+  },1000);
   vigTimer=setTimeout(()=>startLoader(),5000);
+  setTimeout(()=>{const v=document.getElementById('sVig');if(v&&v.classList.contains('on'))startLoader();},6500);
 }
 function skipVig(){clearTimeout(vigTimer);clearInterval(skipTimer);startLoader();}
 function startLoader(){
@@ -558,16 +568,16 @@ function submitEmail(){
         body:JSON.stringify({email_address:email})});
     Option C — store locally for now, export CSV once you pick a provider:
   */
-  try{const list=JSON.parse(localStorage.getItem('cpfgap_emails')||'[]');list.push({email,ts:new Date().toISOString(),gap:calcR.shortfall,age:calcR.age});localStorage.setItem('cpfgap_emails',JSON.stringify(list));}catch(e){}
+  try{const list=JSON.parse(localStorage.getItem('cpfplan_emails')||'[]');list.push({email,ts:new Date().toISOString(),gap:calcR.shortfall,age:calcR.age});localStorage.setItem('cpfplan_emails',JSON.stringify(list));}catch(e){}
   document.getElementById('ecEmail').style.display='none';document.querySelector('.ec-btn').style.display='none';document.getElementById('ecSuccess').style.display='block';
 }
 function shareWA(){
   const r=calcR,gap=r.isSur?'a monthly surplus of +$'+fmt(r.surplus):r.wellF?'a small gap of $'+fmt(r.shortfall)+'/month (well covered)':'a monthly gap of $'+fmt(r.shortfall);
-  const msg='I just checked my CPF retirement gap on cpfgap.sg\n\nAge '+r.age+' | '+r.planName+' plan\nRetirement gap: '+gap+'\nSavings runway: '+(r.ageOut>=120?'Past 95':'Age '+r.ageOut)+'\n\nCheck yours free (60 sec): https://cpfgap.sg';
+  const msg='I just checked my CPF retirement gap on cpfplan.sg\n\nAge '+r.age+' | '+r.planName+' plan\nRetirement gap: '+gap+'\nSavings runway: '+(r.ageOut>=120?'Past 95':'Age '+r.ageOut)+'\n\nCheck yours free (60 sec): https://cpfplan.sg';
   window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
 }
-function copyLink(){navigator.clipboard.writeText('https://cpfgap.sg').then(()=>{const el=document.getElementById('copyTxt');el.textContent='Copied!';setTimeout(()=>el.textContent='Copy link',2000);});}
+function copyLink(){navigator.clipboard.writeText('https://cpfplan.sg').then(()=>{const el=document.getElementById('copyTxt');el.textContent='Copied!';setTimeout(()=>el.textContent='Copy link',2000);});}
 </script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"CPF Retirement Gap Calculator Singapore 2026","description":"Free Singapore CPF LIFE payout gap calculator. Updated for 2026 FRS, ERS and BRS figures.","url":"https://cpfgap.sg","applicationCategory":"FinanceApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"SGD"},"operatingSystem":"Any","inLanguage":"en-SG"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"CPF Retirement Gap Calculator Singapore 2026","description":"Free Singapore CPF LIFE payout gap calculator. Updated for 2026 FRS, ERS and BRS figures.","url":"https://cpfplan.sg","applicationCategory":"FinanceApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"SGD"},"operatingSystem":"Any","inLanguage":"en-SG"}</script>
 </body>
 </html>
