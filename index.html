@@ -443,7 +443,7 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:2.5r
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-let cpfPayout=890,planName='BRS',growthRate=4,myChart=null,vigTimer=null,skipTimer=null,calcR={};
+let cpfPayout=890,planName='BRS',growthRate=4,myChart=null,vigTimer=null,skipTimer=null,vigFailsafe=null,loaderStarted=false,calcR={};
 const ITEMS=[{id:'div',ico:'📈',name:'Dividends / investment income',desc:'Stocks, REITs, unit trusts',def:300,step:50,max:5000},{id:'rent',ico:'🏠',name:'Rental income',desc:'HDB room rental, private property',def:800,step:50,max:8000},{id:'child',ico:'👨‍👩‍👧',name:'Allowance from children',desc:'Monthly support from family',def:500,step:50,max:3000},{id:'pt',ico:'💼',name:'Part-time / freelance work',desc:'Consulting, tutoring, gig work',def:500,step:100,max:5000},{id:'ann',ico:'📋',name:'Private annuity / insurance',desc:'Endowment, whole life payout',def:400,step:50,max:5000},{id:'other',ico:'💰',name:'Other income',desc:'Pension, remittance, etc.',def:300,step:50,max:5000}];
 let iState={};ITEMS.forEach(i=>{iState[i.id]={on:false,val:i.def};});
 const GR=[{l:'0% — cash/fixed dep.',r:0},{l:'~1.5% — bank savings',r:1.5},{l:'~4% — SSB/endowment',r:4},{l:'~7% — diversified funds',r:7},{l:'~10% — S&P 500 (hist.)',r:10}];
@@ -474,26 +474,31 @@ function updI(id,v){iState[id].val=parseInt(v);const a=document.getElementById('
 function getEx(){return ITEMS.reduce((s,i)=>s+(iState[i.id].on?iState[i.id].val:0),0);}
 function getSav65(){const age=parseInt(document.getElementById('age').value),el=document.getElementById('csv');if(!el)return 0;const csv=parseInt(el.value);if(age>=65)return csv;const yrs=65-age,mth=parseInt(document.getElementById('mth')?.value||0),r=growthRate/100;return Math.round(csv*Math.pow(1+r,yrs)+(r>0?mth*12*((Math.pow(1+r,yrs)-1)/r):mth*12*yrs));}
 function startVignette(){
-  clearTimeout(vigTimer);clearInterval(skipTimer);
+  clearTimeout(vigTimer);clearInterval(skipTimer);clearTimeout(vigFailsafe);
+  loaderStarted=false;
   show('sVig');setProg(3);
   const fill=document.getElementById('vigFill');
   const skipBtn=document.getElementById('skipBtn');
   fill.style.transition='none';fill.style.width='100%';
-  skipBtn.disabled=true;skipBtn.textContent='Skip in 5s';
-  document.getElementById('skipCount').textContent='5';
+  skipBtn.disabled=true;
+  const sc=document.getElementById('skipCount');
+  if(sc)sc.textContent='5';
   setTimeout(()=>{fill.style.transition='width 5s linear';fill.style.width='0%';},50);
   let count=5;
   skipTimer=setInterval(()=>{
     count--;
     const el=document.getElementById('skipCount');
     if(el)el.textContent=count;
-    if(count<=0){clearInterval(skipTimer);skipBtn.disabled=false;skipBtn.textContent='Skip now';}
+    if(count<=0){clearInterval(skipTimer);skipBtn.disabled=false;if(sc)sc.textContent='';skipBtn.innerHTML='Skip now';}
   },1000);
   vigTimer=setTimeout(()=>startLoader(),5000);
-  setTimeout(()=>{const v=document.getElementById('sVig');if(v&&v.classList.contains('on'))startLoader();},6500);
+  vigFailsafe=setTimeout(()=>startLoader(),6500);
 }
-function skipVig(){clearTimeout(vigTimer);clearInterval(skipTimer);startLoader();}
+function skipVig(){clearTimeout(vigTimer);clearInterval(skipTimer);clearTimeout(vigFailsafe);startLoader();}
 function startLoader(){
+  if(loaderStarted)return;
+  loaderStarted=true;
+  clearTimeout(vigTimer);clearInterval(skipTimer);clearTimeout(vigFailsafe);
   show('sLoad');document.getElementById('loadBar').style.width='0%';
   const steps=[{id:'ls1',li:'li1',dur:900},{id:'ls2',li:'li2',dur:900},{id:'ls3',li:'li3',dur:700},{id:'ls4',li:'li4',dur:700}];
   let elapsed=0,total=steps.reduce((s,x)=>s+x.dur,0)+400;
