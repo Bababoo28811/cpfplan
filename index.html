@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -242,7 +243,7 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:2.5r
 </head>
 <body>
 <nav>
-  <a href="/" class="nav-logo">cpf<span>plan</span>.sg</a>
+  <a href="/" class="nav-logo">cpf<span>plan</span>.com</a>
   <span class="nav-badge">Updated for 2026</span>
 </nav>
 <div class="hero">
@@ -417,14 +418,14 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:2.5r
 </div>
 <footer>
   <div class="footer-inner">
-    <div class="footer-logo">cpf<span>plan</span>.sg</div>
+    <div class="footer-logo">cpf<span>plan</span>.com</div>
     <p class="footer-disc">This calculator is provided for informational and educational purposes only. It does not constitute financial, investment, or retirement advice. All figures are estimates based on publicly available CPF Board data for 2026. Always verify your personal CPF figures at <a href="https://cpf.gov.sg" style="color:var(--green)">cpf.gov.sg</a>. Consult a MAS-licensed financial adviser for personalised advice.</p>
     <div class="footer-links">
       <a href="https://cpf.gov.sg" target="_blank" rel="noopener">CPF Board</a>
       <a href="https://www.cpf.gov.sg/member/retirement-income/monthly-payouts/cpf-life" target="_blank" rel="noopener">CPF LIFE</a>
       <a href="https://www.mas.gov.sg" target="_blank" rel="noopener">MAS</a>
     </div>
-    <p class="footer-copy">© 2026 cpfplan.sg · Independent tool · Not affiliated with the CPF Board or any government agency.</p>
+    <p class="footer-copy">© 2026 cpfplan.com · Independent tool · Not affiliated with the CPF Board or any government agency.</p>
   </div>
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -600,11 +601,11 @@ function submitEmail(){
   document.getElementById('ecEmail').style.display='none';document.querySelector('.ec-btn').style.display='none';document.getElementById('ecSuccess').style.display='block';
 }
 function shareWA(){
-  const r=calcR,gap=r.isSur?'a monthly surplus of +$'+fmt(r.surplus):r.wellF?'a small gap of $'+fmt(r.shortfall)+'/month (well covered)':'a monthly gap of $'+fmt(r.shortfall);
   const msg='I just checked my CPF retirement gap on cpfplan.com, check yours for free in 60 seconds now! https://cpfplan.com';
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
 }
-function copyLink(){navigator.clipboard.writeText('https://cpfplan.sg').then(()=>{const el=document.getElementById('copyTxt');el.textContent='Copied!';setTimeout(()=>el.textContent='Copy link',2000);});}
+function copyLink(){const url='https://cpfplan.com';if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(url).then(()=>{const el=document.getElementById('copyTxt');el.textContent='Copied!';setTimeout(()=>el.textContent='Copy link',2000);});}else{const ta=document.createElement('textarea');ta.value=url;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);const el=document.getElementById('copyTxt');el.textContent='Copied!';setTimeout(()=>el.textContent='Copy link',2000);}}
 </script>
-<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"CPF Retirement Gap Calculator Singapore 2026","description":"Free Singapore CPF LIFE payout gap calculator. Updated for 2026 FRS, ERS and BRS figures.","url":"https://cpfplan.sg","applicationCategory":"FinanceApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"SGD"},"operatingSystem":"Any","inLanguage":"en-SG"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"CPF Retirement Gap Calculator Singapore 2026","description":"Free Singapore CPF LIFE payout gap calculator. Updated for 2026 FRS, ERS and BRS figures.","url":"https://cpfplan.com","applicationCategory":"FinanceApplication","offers":{"@type":"Offer","price":"0","priceCurrency":"SGD"},"operatingSystem":"Any","inLanguage":"en-SG"}</script>
 </body>
 </html>
