@@ -12,22 +12,6 @@
 <meta property="og:url" content="https://cpfplan.sg">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="canonical" href="https://cpfplan.sg">
-<!--
-ADSENSE SETUP:
-1. Apply at adsense.google.com with your Cloudflare URL
-2. Paste your global script tag here after approval
-3. Replace each AD SLOT div with your <ins> adsbygoogle tag
-4. In AdSense dashboard: Brand Safety > Blocking Controls
-   Block: Dating, Games, Low-cost goods, Entertainment, Apparel
-   This lifts CPM by 30-50% immediately.
-
-AD SLOTS IN THIS FILE (search "AD SLOT"):
-  1. VIGNETTE   - full-screen before results (highest CPM)
-  2. LOADER     - banner during 4s calculation loader
-  3. MID-RESULT - between gap number and strategies
-  4. STICKY     - mobile bottom banner (always visible)
-  5. DESKTOP-HP - 300x600 half-page, desktop sidebar
--->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -69,6 +53,7 @@ nav{background:var(--surface);border-bottom:1px solid var(--border);padding:0 1.
 .pline.done{background:var(--green)}
 .panel{display:none}
 .panel.on{display:block;animation:fadeUp .2s ease}
+#sVig.on{animation:none}
 @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .ptitle{font-size:18px;font-weight:500;color:var(--text);margin-bottom:.3rem}
 .psub{font-size:13px;color:var(--text2);margin-bottom:1.5rem;line-height:1.55}
@@ -148,10 +133,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;heigh
 .ls{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:var(--r);background:var(--surface2);opacity:.35;transition:opacity .3s,background .3s}
 .ls.active{opacity:1;background:var(--gbg)}
 .ls.done{opacity:1;background:var(--surface2)}
-.ls-ico{width:22px;height:22px;border-radius:50%;background:var(--border-s);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;color:var(--text3);transition:all .3s}
+.ls-ico{width:22px;height:22px;border-radius:50%;background:var(--border-s);display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;color:var(--text3);transition:background .3s,color .3s}
 .ls.done .ls-ico{background:var(--green);color:#fff}
-.ls.active .ls-ico{background:var(--gbg);border:2px solid var(--green)}
-.ls-spin{width:10px;height:10px;border:2px solid var(--green);border-top-color:transparent;border-radius:50%;animation:spin .6s linear infinite}
+.ls.active .ls-ico{background:transparent;border:2px solid var(--green)}
+.ls-ico.spinning{border-color:var(--green);border-top-color:transparent;animation:spin .6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .ls-text{font-size:13px;font-weight:500;color:var(--text)}
 .loader-ad{background:var(--surface2);border:1px dashed var(--border-s);border-radius:var(--r);padding:1rem;text-align:center;margin-top:1.5rem}
@@ -293,9 +278,9 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:2.5r
           <div class="ib"><div class="ir"><span class="iname">Estimated CPF LIFE payout at 65</span><span class="ival">$<span id="cpVal">1,500</span>/mo</span></div>
           <input type="range" min="500" max="4000" step="50" value="1500" id="customPayout" oninput="updCP(this.value)"></div>
         </div>
-        <div class="ib"><div class="ir"><span class="iname">Your current age</span><span class="ival"><span id="ageV">45</span> yrs</span></div><input type="range" min="25" max="85" step="1" value="45" id="age" oninput="document.getElementById('ageV').textContent=this.value"></div>
-        <div class="ib"><div class="ir"><span class="iname">Monthly expenses today</span><span class="ival">$<span id="expV">3,500</span></span></div><input type="range" min="1000" max="12000" step="100" value="3500" id="expenses" oninput="document.getElementById('expV').textContent=parseInt(this.value).toLocaleString()"></div>
-        <div class="ib"><div class="ir"><span class="iname">Inflation assumption</span><span class="ival"><span id="infV">2.5</span>%</span></div><input type="range" min="1" max="5" step="0.5" value="2.5" id="inflation" oninput="document.getElementById('infV').textContent=parseFloat(this.value).toFixed(1)"></div>
+        <div class="ib"><div class="ir"><span class="iname">Your current age</span><span class="ival"><span id="ageV">45</span> yrs</span></div><input type="range" min="25" max="85" step="1" value="45" id="age" oninput="updAgeText(this.value)"></div>
+        <div class="ib"><div class="ir"><span class="iname">Monthly expenses today</span><span class="ival">$<span id="expV">3,500</span></span></div><input type="range" min="1000" max="12000" step="100" value="3500" id="expenses" oninput="updExpText(this.value)"></div>
+        <div class="ib"><div class="ir"><span class="iname">Inflation assumption</span><span class="ival"><span id="infV">2.5</span>%</span></div><input type="range" min="1" max="5" step="0.5" value="2.5" id="inflation" oninput="updInfText(this.value)"></div>
         <div class="nav-row"><div></div><button class="btn-next" onclick="goTo(2)">Next: Your savings →</button></div>
       </div>
       <!-- STEP 2 -->
@@ -308,13 +293,13 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:2.5r
               <span class="vig-label">Sponsored</span>
               <button class="vig-skip" id="skipBtn" onclick="skipVig()" disabled>Skip in <span id="skipCount">5</span>s</button>
             </div>
-            <!-- AD SLOT 1: VIGNETTE - Replace with AdSense 300x250 or 320x480 unit -->
+            <!-- AD SLOT 1: VIGNETTE -->
             <div class="vig-ad">
               <div style="font-size:28px">📊</div>
               <div style="font-size:13px;font-weight:500;color:var(--text2)">Ad Slot 1 — Vignette (300×250)</div>
               <div style="font-size:11px;color:var(--text3);text-align:center">Replace with AdSense code after approval<br>Full-screen takeover · highest CPM format · user is captive</div>
             </div>
-            <div class="vig-bar-bg"><div class="vig-bar-fill" id="vigFill" style="transition:none;width:100%"></div></div>
+            <div class="vig-bar-bg"><div class="vig-bar-fill" id="vigFill"></div></div>
             <div class="vig-note">Your retirement gap is being calculated…</div>
           </div>
         </div>
@@ -331,7 +316,7 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:2.5r
             <div class="ls" id="ls3"><div class="ls-ico" id="li3">3</div><span class="ls-text">Calculating monthly shortfall</span></div>
             <div class="ls" id="ls4"><div class="ls-ico" id="li4">4</div><span class="ls-text">Modelling savings runway to age 95</span></div>
           </div>
-          <!-- AD SLOT 2: LOADER BANNER - Replace with AdSense 336x280 or 728x90 unit -->
+          <!-- AD SLOT 2: LOADER BANNER -->
           <div class="loader-ad">
             <div class="ad-label">Sponsored</div>
             <div class="ad-ph">Ad Slot 2 — Loader banner (336×280 or 728×90)</div>
@@ -342,14 +327,13 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:2.5r
       <!-- RESULTS -->
       <div class="panel" id="s3">
         <div id="resArea"></div>
-        <!-- AD SLOT 3: MID-RESULT - Replace with AdSense 300x250 unit -->
+        <!-- AD SLOT 3: MID-RESULT -->
         <div class="mid-ad">
           <div class="ad-label">Sponsored</div>
           <div class="ad-ph">Ad Slot 3 — Mid-result (300×250)</div>
           <div class="ad-sz">Shown after gap reveal · user in peak decision-making mode · high CTR</div>
         </div>
         <div id="stratArea"></div>
-
         <!-- EMAIL CAPTURE -->
         <div class="email-capture">
           <div class="ec-title">📧 Email me my retirement gap report</div>
@@ -399,7 +383,7 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:2.5r
       <div>
         <div class="faq-item"><div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">Is this endorsed by the CPF Board?</div><div class="faq-a">No. This is an independent tool. CPF figures are based on CPF Board announcements for 2026. Always verify your personal figures at cpf.gov.sg.</div></div>
         <div class="faq-item"><div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">Why does it show comfort strategies when I'm well-funded?</div><div class="faq-a">If your savings runway extends past age 90 or your income covers expenses, the calculator shifts to comfort and protection strategies — how to spend confidently, protect against medical costs, and ensure your estate is in order.</div></div>
-        <div class="faq-item"><div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">How is "safe monthly spend" calculated?</div><div class="faq-a">Safe monthly spend = total monthly income (CPF LIFE + any extra income) + (investable savings divided by 360 months). Investable savings = total savings minus the 24-month emergency buffer.</div></div>
+        <div class="faq-item"><div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">How is "safe monthly spend after 65" calculated?</div><div class="faq-a">Safe monthly spend after 65 = total monthly income (CPF LIFE + any extra income) + (investable savings divided by 360 months). Investable savings = total savings minus the 24-month emergency buffer.</div></div>
         <div class="faq-item"><div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">Should I defer my CPF LIFE payout to age 70?</div><div class="faq-a">Each year you defer past 65 increases your payout by ~7%. Deferring the full 5 years = up to 35% more — permanently, at no cost. Best if you have other savings or income to fund the 65–70 gap. Break-even is typically around age 78–80.</div></div>
         <div class="faq-item"><div class="faq-q" onclick="this.closest('.faq-item').classList.toggle('open')">What inflation rate should I use?</div><div class="faq-a">Singapore's core inflation has averaged 2–3% over the past decade. The default of 2.5% is a reasonable estimate. For healthcare-heavy expenses, consider 4–5% since medical costs rise faster than general inflation.</div></div>
       </div>
@@ -407,7 +391,7 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:2.5r
   </div>
   <!-- SIDEBAR -->
   <div class="sidebar">
-    <!-- AD SLOT 5: DESKTOP 300x600 HALF-PAGE - Replace with AdSense unit -->
+    <!-- AD SLOT 5: DESKTOP 300x600 HALF-PAGE -->
     <div class="sidebar-ad">
       <div class="ad-label">Sponsored</div>
       <div class="ad-ph" style="font-size:12px;color:var(--text2)">Ad Slot 5 — Desktop 300×600 half-page</div>
@@ -424,7 +408,7 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:2.5r
     </div>
   </div>
 </div>
-<!-- AD SLOT 4: STICKY MOBILE BANNER - Replace with AdSense 320x50 unit -->
+<!-- AD SLOT 4: STICKY MOBILE BANNER -->
 <div class="sticky-ad" id="stickyAd">
   <div class="sticky-ad-label">Sponsored</div>
   <div class="sticky-ad-ph">Ad Slot 4 — Sticky mobile banner (320×50) — replace with AdSense code</div>
@@ -443,70 +427,118 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:2.5r
 </footer>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-let cpfPayout=890,planName='BRS',growthRate=4,myChart=null,vigTimer=null,skipTimer=null,vigFailsafe=null,loaderStarted=false,calcR={};
+let cpfPayout=890,planName='BRS',growthRate=4,myChart=null,vigTimer=null,animationFrameId=null,calcR={},updProjTimer=null,updITimer=null,textUpdateTimers={};
 const ITEMS=[{id:'div',ico:'📈',name:'Dividends / investment income',desc:'Stocks, REITs, unit trusts',def:300,step:50,max:5000},{id:'rent',ico:'🏠',name:'Rental income',desc:'HDB room rental, private property',def:800,step:50,max:8000},{id:'child',ico:'👨‍👩‍👧',name:'Allowance from children',desc:'Monthly support from family',def:500,step:50,max:3000},{id:'pt',ico:'💼',name:'Part-time / freelance work',desc:'Consulting, tutoring, gig work',def:500,step:100,max:5000},{id:'ann',ico:'📋',name:'Private annuity / insurance',desc:'Endowment, whole life payout',def:400,step:50,max:5000},{id:'other',ico:'💰',name:'Other income',desc:'Pension, remittance, etc.',def:300,step:50,max:5000}];
 let iState={};ITEMS.forEach(i=>{iState[i.id]={on:false,val:i.def};});
 const GR=[{l:'0% — cash/fixed dep.',r:0},{l:'~1.5% — bank savings',r:1.5},{l:'~4% — SSB/endowment',r:4},{l:'~7% — diversified funds',r:7},{l:'~10% — S&P 500 (hist.)',r:10}];
+function updAgeText(v){document.getElementById('ageV').textContent=v;}
+function updExpText(v){document.getElementById('expV').textContent=parseInt(v).toLocaleString();}
+function updInfText(v){document.getElementById('infV').textContent=parseFloat(v).toFixed(1);}
+function updCsvText(v){document.getElementById('csvV').textContent=parseInt(v).toLocaleString();clearTimeout(textUpdateTimers['csv']);textUpdateTimers['csv']=setTimeout(updProj,80);}
+function updMthText(v){document.getElementById('mthV').textContent=parseInt(v).toLocaleString();clearTimeout(textUpdateTimers['mth']);textUpdateTimers['mth']=setTimeout(updProj,80);}
 function setPlan(n,a,el){planName=n;if(n!=='Custom')cpfPayout=a;document.querySelectorAll('.pb').forEach(b=>b.classList.remove('active'));el.classList.add('active');document.getElementById('cRow').style.display=n==='Custom'?'block':'none';if(n==='Custom')cpfPayout=parseInt(document.getElementById('customPayout').value);}
 function updCP(v){cpfPayout=parseInt(v);document.getElementById('cpVal').textContent=parseInt(v).toLocaleString();document.getElementById('cLabel').textContent='$'+parseInt(v).toLocaleString()+'/mo';}
 function fmt(n){return Math.round(Math.abs(n)).toLocaleString();}
 function show(id){document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));document.getElementById(id).classList.add('on');}
 function setProg(step){for(let i=1;i<=3;i++){const d=document.getElementById('pd'+i),l=document.getElementById('pl'+i);if(i<step){d.className='pdot done';d.textContent='✓';l.className='plabel';}else if(i===step){d.className='pdot active';d.textContent=i;l.className='plabel active';}else{d.className='pdot';d.textContent=i;l.className='plabel';}if(i<3)document.getElementById('pln'+i).className='pline'+(i<step?' done':'');}}
-function goTo(step){if(step===2){buildS2();show('s2');setProg(2);}else if(step===1){show('s1');setProg(1);}}
+function goTo(step){
+  if(step===2){buildS2();show('s2');setProg(2);}
+  else if(step===1){
+    clearTimeout(vigTimer);
+    if(animationFrameId){cancelAnimationFrame(animationFrameId);animationFrameId=null;}
+    show('s1');setProg(1);
+  }
+}
 function buildS2(){
   const age=parseInt(document.getElementById('age').value),body=document.getElementById('s2body');
   if(age<65){
     growthRate=4;
-    body.innerHTML=`<div class="ptitle">Your savings</div><div class="psub">We'll project your savings forward to age 65 using compound growth.</div><div class="ib"><div class="ir"><span class="iname">Current savings &amp; investments</span><span class="ival">$<span id="csvV">50,000</span></span></div><input type="range" min="0" max="1000000" step="5000" value="50000" id="csv" oninput="document.getElementById('csvV').textContent=parseInt(this.value).toLocaleString();updProj()"></div><div class="ib"><div class="ir"><span class="iname">Monthly contributions going forward</span><span class="ival">$<span id="mthV">1,000</span>/mo</span></div><input type="range" min="0" max="10000" step="100" value="1000" id="mth" oninput="document.getElementById('mthV').textContent=parseInt(this.value).toLocaleString();updProj()"></div><p class="sl">Expected annual growth rate</p><div class="pills">${GR.map((g,i)=>`<button class="pill${i===2?' active':''}" onclick="setGr(${g.r},this)">${g.l}</button>`).join('')}<button class="pill" onclick="setGr(-1,this)">Custom</button></div><div id="cgRow" style="display:none;margin-bottom:1rem"><div class="ib"><div class="ir"><span class="iname">Custom annual return</span><span class="ival"><span id="cgV">6.0</span>%</span></div><input type="range" min="0" max="15" step="0.5" value="6" id="cgInput" oninput="setCG(this.value)"></div></div><div class="proj"><div><div class="pjl">Projected savings at age 65</div><div class="pjv" id="pjv">—</div><div class="pjk" id="pjk"></div></div><div style="text-align:right"><div class="pjl">Growth earned</div><div class="pjg" id="pjg">—</div></div></div>`;
+    body.innerHTML=`<div class="ptitle">Your savings</div><div class="psub">We'll project your savings forward to age 65 using compound growth.</div><div class="ib"><div class="ir"><span class="iname">Current savings &amp; investments</span><span class="ival">$<span id="csvV">50,000</span></span></div><input type="range" min="0" max="1000000" step="5000" value="50000" id="csv" oninput="updCsvText(this.value)"></div><div class="ib"><div class="ir"><span class="iname">Monthly contributions going forward</span><span class="ival">$<span id="mthV">1,000</span>/mo</span></div><input type="range" min="0" max="10000" step="100" value="1000" id="mth" oninput="updMthText(this.value)"></div><p class="sl">Expected annual growth rate</p><div class="pills">${GR.map((g,i)=>`<button class="pill${i===2?' active':''}" onclick="setGr(${g.r},this)">${g.l}</button>`).join('')}<button class="pill" onclick="setGr(-1,this)">Custom</button></div><div id="cgRow" style="display:none;margin-bottom:1rem"><div class="ib"><div class="ir"><span class="iname">Custom annual return</span><span class="ival"><span id="cgV">6.0</span>%</span></div><input type="range" min="0" max="15" step="0.5" value="6" id="cgInput" oninput="setCG(this.value)"></div></div><div class="proj"><div><div class="pjl">Projected savings at age 65</div><div class="pjv" id="pjv">—</div><div class="pjk" id="pjk"></div></div><div style="text-align:right"><div class="pjl">Growth earned</div><div class="pjg" id="pjg">—</div></div></div>`;
     updProj();
   } else {
     growthRate=0;ITEMS.forEach(i=>{iState[i.id].on=false;});
-    body.innerHTML=`<div class="ptitle">Your savings &amp; income</div><div class="psub">What you have now, plus any regular income beyond CPF LIFE.</div><div class="ib"><div class="ir"><span class="iname">Total savings &amp; investments today</span><span class="ival">$<span id="csvV">540,000</span></span></div><input type="range" min="0" max="2000000" step="10000" value="540000" id="csv" oninput="document.getElementById('csvV').textContent=parseInt(this.value).toLocaleString();updProj()"></div><p class="sl">How are savings invested?</p><div class="pills">${GR.map((g,i)=>`<button class="pill${i===0?' active':''}" onclick="setGr(${g.r},this)">${g.l}</button>`).join('')}<button class="pill" onclick="setGr(-1,this)">Custom</button></div><div id="cgRow" style="display:none;margin-bottom:1rem"><div class="ib"><div class="ir"><span class="iname">Custom return</span><span class="ival"><span id="cgV">3.0</span>%</span></div><input type="range" min="0" max="12" step="0.5" value="3" id="cgInput" oninput="setCG(this.value)"></div></div><div class="proj"><div class="pjl">Savings right now</div><div class="pjv" id="pjv">$540,000</div><div class="pjk" id="pjk">No growth — cash / fixed deposit</div></div><div class="divider"></div><p class="sl">Other monthly income (optional)</p><div class="income-box"><div class="inc-header" onclick="togIB()"><div class="inc-hl"><span class="inc-htitle">Extra income sources</span><span class="inc-hsub">Dividends, rental, family, part-time</span></div><div class="inc-hr"><span class="inc-total" id="incTotal">Tap to add</span><span class="inc-chev" id="incChev">+</span></div></div><div class="inc-body" id="incBody"><div class="inc-inner">${ITEMS.map(it=>`<div class="ii"><span class="ii-ico">${it.ico}</span><div class="ii-info"><div class="ii-name">${it.name}</div><div class="ii-desc">${it.desc}</div></div><span class="ii-amt" id="iam_${it.id}">—</span><button class="tog" id="itog_${it.id}" onclick="togI('${it.id}')"></button></div><div class="ii-sl" id="isl_${it.id}"><input type="range" min="0" max="${it.max}" step="${it.step}" value="${it.def}" oninput="updI('${it.id}',this.value)"><span class="ii-sv" id="isv_${it.id}">$${it.def.toLocaleString()}/mo</span></div>`).join('')}</div></div></div>`;
+    body.innerHTML=`<div class="ptitle">Your savings &amp; income</div><div class="psub">What you have now, plus any regular income beyond CPF LIFE.</div><div class="ib"><div class="ir"><span class="iname">Total savings &amp; investments today</span><span class="ival">$<span id="csvV">540,000</span></span></div><input type="range" min="0" max="2000000" step="10000" value="540000" id="csv" oninput="updCsvText(this.value)"></div><p class="sl">How are savings invested?</p><div class="pills">${GR.map((g,i)=>`<button class="pill${i===0?' active':''}" onclick="setGr(${g.r},this)">${g.l}</button>`).join('')}<button class="pill" onclick="setGr(-1,this)">Custom</button></div><div id="cgRow" style="display:none;margin-bottom:1rem"><div class="ib"><div class="ir"><span class="iname">Custom return</span><span class="ival"><span id="cgV">3.0</span>%</span></div><input type="range" min="0" max="12" step="0.5" value="3" id="cgInput" oninput="setCG(this.value)"></div></div><div class="proj"><div><div class="pjl">Savings right now</div><div class="pjv" id="pjv">—</div><div class="pjk" id="pjk"></div></div><div style="text-align:right"><div class="pjl">Growth over 30 yrs</div><div class="pjg" id="pjg">—</div></div></div><div class="divider"></div><p class="sl">Other monthly income (optional)</p><div class="income-box"><div class="inc-header" onclick="togIB()"><div class="inc-hl"><span class="inc-htitle">Extra income sources</span><span class="inc-hsub">Dividends, rental, family, part-time</span></div><div class="inc-hr"><span class="inc-total" id="incTotal">Tap to add</span><span class="inc-chev" id="incChev">+</span></div></div><div class="inc-body" id="incBody"><div class="inc-inner">${ITEMS.map(it=>`<div class="ii"><span class="ii-ico">${it.ico}</span><div class="ii-info"><div class="ii-name">${it.name}</div><div class="ii-desc">${it.desc}</div></div><span class="ii-amt" id="iam_${it.id}">—</span><button class="tog" id="itog_${it.id}" onclick="togI('${it.id}')"></button></div><div class="ii-sl" id="isl_${it.id}"><input type="range" min="0" max="${it.max}" step="${it.step}" value="${it.def}" oninput="updI('${it.id}',this.value)"><span class="ii-sv" id="isv_${it.id}">$${it.def.toLocaleString()}/mo</span></div>`).join('')}</div></div></div>`;
     updProj();
   }
 }
-function updProj(){const age=parseInt(document.getElementById('age').value),el=document.getElementById('csv');if(!el)return;const csv=parseInt(el.value);if(age>=65){const pk=document.getElementById('pjk');if(pk)pk.textContent=growthRate>0?'Growing at '+growthRate+'%/yr going forward':'No growth — cash / fixed deposit';return;}const yrs=65-age,mth=parseInt(document.getElementById('mth')?.value||0),r=growthRate/100,fvL=csv*Math.pow(1+r,yrs),fvM=r>0?mth*12*((Math.pow(1+r,yrs)-1)/r):mth*12*yrs,total=Math.round(fvL+fvM),growth=Math.max(0,total-(csv+mth*12*yrs));const pv=document.getElementById('pjv'),pk=document.getElementById('pjk'),pg=document.getElementById('pjg');if(pv)pv.textContent='$'+total.toLocaleString();if(pk)pk.textContent='$'+csv.toLocaleString()+' now + $'+fmt(mth*12*yrs)+' contributions over '+yrs+' yrs';if(pg)pg.textContent='+$'+growth.toLocaleString();}
+function doUpdProj(){const age=parseInt(document.getElementById('age').value),el=document.getElementById('csv');if(!el)return;const csv=parseInt(el.value);if(age>=65){const projYrs=Math.min(30,95-age);const r=growthRate/100;const fv=Math.round(csv*Math.pow(1+r,projYrs));const growth=Math.max(0,fv-csv);const pv=document.getElementById('pjv'),pk=document.getElementById('pjk'),pg=document.getElementById('pjg');if(pv)pv.textContent='$'+csv.toLocaleString();if(pk)pk.textContent=growthRate>0?'Growing at '+growthRate+'%/yr going forward':'No growth — cash / fixed deposit';if(pg)pg.textContent=growthRate>0?'+$'+growth.toLocaleString():'—';return;}const yrs=65-age,mth=parseInt(document.getElementById('mth')?.value||0),r=growthRate/100,fvL=csv*Math.pow(1+r,yrs),fvM=r>0?mth*12*((Math.pow(1+r,yrs)-1)/r):mth*12*yrs,total=Math.round(fvL+fvM),growth=Math.max(0,total-(csv+mth*12*yrs));const pv=document.getElementById('pjv'),pk=document.getElementById('pjk'),pg=document.getElementById('pjg');if(pv)pv.textContent='$'+total.toLocaleString();if(pk)pk.textContent='$'+csv.toLocaleString()+' now + $'+fmt(mth*12*yrs)+' contributions over '+yrs+' yrs';if(pg)pg.textContent='+$'+growth.toLocaleString();}
+function updProj(){clearTimeout(updProjTimer);updProjTimer=setTimeout(doUpdProj,80);}
+function doUpdI(id,v){iState[id].val=parseInt(v);const a=document.getElementById('iam_'+id),s=document.getElementById('isv_'+id);if(a&&iState[id].on)a.textContent='$'+parseInt(v).toLocaleString()+'/mo';if(s)s.textContent='$'+parseInt(v).toLocaleString()+'/mo';const ex=getEx(),t=document.getElementById('incTotal');if(t)t.textContent=ex>0?'+$'+ex.toLocaleString()+'/mo':'Tap to add';}
+function updI(id,v){clearTimeout(updITimer);updITimer=setTimeout(()=>doUpdI(id,v),80);}
 function setGr(r,el){document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');const cr=document.getElementById('cgRow');if(r===-1){if(cr)cr.style.display='block';growthRate=parseFloat(document.getElementById('cgInput').value);}else{if(cr)cr.style.display='none';growthRate=r;}updProj();}
 function setCG(v){growthRate=parseFloat(v);document.getElementById('cgV').textContent=parseFloat(v).toFixed(1);updProj();}
-function togIB(){const b=document.getElementById('incBody'),c=document.getElementById('incChev');if(b){b.classList.toggle('open');if(c)c.textContent=b.classList.contains('open')?'−':'+'}}
-function togI(id){iState[id].on=!iState[id].on;const b=document.getElementById('itog_'+id),s=document.getElementById('isl_'+id),a=document.getElementById('iam_'+id);if(b)b.classList.toggle('on',iState[id].on);if(s)s.classList.toggle('show',iState[id].on);if(a)a.textContent=iState[id].on?'$'+iState[id].val.toLocaleString()+'/mo':'—';const ex=getEx(),t=document.getElementById('incTotal');if(t)t.textContent=ex>0?'+$'+ex.toLocaleString()+'/mo':'Tap to add';}
-function updI(id,v){iState[id].val=parseInt(v);const a=document.getElementById('iam_'+id),s=document.getElementById('isv_'+id);if(a&&iState[id].on)a.textContent='$'+parseInt(v).toLocaleString()+'/mo';if(s)s.textContent='$'+parseInt(v).toLocaleString()+'/mo';const ex=getEx(),t=document.getElementById('incTotal');if(t)t.textContent=ex>0?'+$'+ex.toLocaleString()+'/mo':'Tap to add';}
 function getEx(){return ITEMS.reduce((s,i)=>s+(iState[i.id].on?iState[i.id].val:0),0);}
 function getSav65(){const age=parseInt(document.getElementById('age').value),el=document.getElementById('csv');if(!el)return 0;const csv=parseInt(el.value);if(age>=65)return csv;const yrs=65-age,mth=parseInt(document.getElementById('mth')?.value||0),r=growthRate/100;return Math.round(csv*Math.pow(1+r,yrs)+(r>0?mth*12*((Math.pow(1+r,yrs)-1)/r):mth*12*yrs));}
+
+// ─── VIGNETTE ───────────────────────────────────────────────────────────────
 function startVignette(){
-  clearTimeout(vigTimer);clearInterval(skipTimer);clearTimeout(vigFailsafe);
-  loaderStarted=false;
+  // Cancel any previous timers / animation frames
+  clearTimeout(vigTimer);
+  if(animationFrameId){cancelAnimationFrame(animationFrameId);animationFrameId=null;}
+
   show('sVig');setProg(3);
+
   const fill=document.getElementById('vigFill');
   const skipBtn=document.getElementById('skipBtn');
-  fill.style.transition='none';fill.style.width='100%';
+
+  // ── Fix A: snap fill bar back to 100% with no CSS transition,
+  //    then force a layout read so the browser paints the reset
+  //    before the rAF loop starts decrementing the width.
+  fill.style.transition='none';
+  fill.style.width='100%';
+  fill.getBoundingClientRect(); // force reflow — do not remove
+
+  // ── Fix B: always rebuild innerHTML so <span id="skipCount"> exists
+  //    even after a previous run replaced it with plain text via
+  //    skipBtn.textContent = 'Skip now'.
   skipBtn.disabled=true;
-  const sc=document.getElementById('skipCount');
-  if(sc)sc.textContent='5';
-  setTimeout(()=>{fill.style.transition='width 5s linear';fill.style.width='0%';},50);
+  skipBtn.innerHTML='Skip in <span id="skipCount">5</span>s';
+
   let count=5;
-  skipTimer=setInterval(()=>{
+  const startTime=performance.now();
+  const duration=5000;
+
+  const animate=(now)=>{
+    const progress=Math.min((now-startTime)/duration,1);
+    fill.style.width=(100*(1-progress))+'%';
+    if(progress<1){animationFrameId=requestAnimationFrame(animate);}
+    else{animationFrameId=null;}
+  };
+
+  const countdown=()=>{
     count--;
-    const el=document.getElementById('skipCount');
-    if(el)el.textContent=count;
-    if(count<=0){clearInterval(skipTimer);skipBtn.disabled=false;if(sc)sc.textContent='';skipBtn.innerHTML='Skip now';}
-  },1000);
-  vigTimer=setTimeout(()=>startLoader(),5000);
-  vigFailsafe=setTimeout(()=>startLoader(),6500);
+    // span is guaranteed present because we rebuilt innerHTML above
+    const sc=document.getElementById('skipCount');
+    if(sc)sc.textContent=count;
+    if(count>0){
+      vigTimer=setTimeout(countdown,1000);
+    } else {
+      skipBtn.disabled=false;
+      skipBtn.textContent='Skip now';
+      vigTimer=setTimeout(startLoader,100);
+    }
+  };
+
+  animationFrameId=requestAnimationFrame(animate);
+  vigTimer=setTimeout(countdown,1000);
 }
-function skipVig(){clearTimeout(vigTimer);clearInterval(skipTimer);clearTimeout(vigFailsafe);startLoader();}
+
+function skipVig(){
+  clearTimeout(vigTimer);
+  if(animationFrameId){cancelAnimationFrame(animationFrameId);animationFrameId=null;}
+  startLoader();
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 function startLoader(){
-  if(loaderStarted)return;
-  loaderStarted=true;
-  clearTimeout(vigTimer);clearInterval(skipTimer);clearTimeout(vigFailsafe);
   show('sLoad');document.getElementById('loadBar').style.width='0%';
   const steps=[{id:'ls1',li:'li1',dur:900},{id:'ls2',li:'li2',dur:900},{id:'ls3',li:'li3',dur:700},{id:'ls4',li:'li4',dur:700}];
   let elapsed=0,total=steps.reduce((s,x)=>s+x.dur,0)+400;
   function runStep(i){
     if(i>=steps.length){document.getElementById('loadBar').style.transition='width .4s ease';document.getElementById('loadBar').style.width='100%';setTimeout(()=>showResults(),500);return;}
-    const st=steps[i];document.getElementById(st.id).className='ls active';document.getElementById(st.li).innerHTML='<div class="ls-spin"></div>';
+    const st=steps[i];document.getElementById(st.id).className='ls active';const ico=document.getElementById(st.li);ico.textContent='';ico.style.cssText='width:22px;height:22px;border-radius:50%;border:2.5px solid var(--green);border-top-color:transparent;background:transparent;animation:spin .65s linear infinite;flex-shrink:0';
     elapsed+=st.dur;document.getElementById('loadBar').style.transition='width '+st.dur+'ms ease';document.getElementById('loadBar').style.width=Math.round((elapsed/total)*90)+'%';
-    setTimeout(()=>{document.getElementById(st.id).className='ls done';const ico=document.getElementById(st.li);ico.innerHTML='✓';ico.style.cssText='background:var(--green);color:#fff;font-size:11px;border:none';runStep(i+1);},st.dur);
+    setTimeout(()=>{document.getElementById(st.id).className='ls done';const ico=document.getElementById(st.li);ico.style.cssText='';ico.textContent='✓';runStep(i+1);},st.dur);
   }
   runStep(0);
 }
@@ -519,10 +551,10 @@ function showResults(){
   const wellF=ageOut>=90||surplus>=0,isSur=surplus>=0;
   calcR={age,expenses,shortfall,surplus,sav65,extra,totalIncome,inflExp,ageOut,safeMo,comfUp,eBuf,isSur,wellF,startAge,planName,cpfPayout};
   let bCls,bT,bS,surT,surC,runT,runC,c3l,c3v,c3c,c3s;
-  if(isSur){bCls='great';bT='Well funded — your income covers your expenses.';bS='$'+totalIncome.toLocaleString()+'/mo income exceeds $'+inflExp.toLocaleString()+'/mo expenses'+(age<65?' at 65':'')+'.';surT='+$'+fmt(surplus)+'/mo';surC='great';runT='Never';runC='great';c3l='Safe monthly spend';c3v='$'+safeMo.toLocaleString();c3c='great';c3s='after $'+fmt(eBuf)+' buffer';}
-  else if(wellF){bCls='ok';bT='Strong position — savings comfortably cover the gap.';bS='$'+sav65.toLocaleString()+(age<65?' projected at 65':'')+' absorbs $'+fmt(shortfall)+'/mo shortfall.';surT='-$'+fmt(shortfall)+'/mo';surC='ok';runT=ageOut>=120?'Past 95':'Age '+ageOut;runC='ok';c3l='Safe monthly spend';c3v='$'+safeMo.toLocaleString();c3c='ok';c3s='after $'+fmt(eBuf)+' buffer';}
-  else if(ageOut>=75){bCls='warn';bT='Manageable gap — some runway but not full coverage.';bS=age<65?'Acting now with '+(65-age)+' years to go gives you real options.':'Consider adding income to extend your runway.';surT='-$'+fmt(shortfall)+'/mo';surC='warn';runT='Age '+ageOut;runC='warn';const tg=shortfall*12*Math.max(0,85-ageOut);c3l='Total gap to 85';c3v='$'+fmt(tg);c3c='danger';c3s='to fund fully to age 85';}
-  else{bCls='danger';bT='Action needed — your retirement gap requires attention.';bS=age<65?'Acting now with '+(65-age)+' years ahead makes a significant difference.':'Savings run out at age '+ageOut+'.';surT='-$'+fmt(shortfall)+'/mo';surC='danger';runT='Age '+Math.min(ageOut,95);runC='danger';const tg=shortfall*12*Math.max(0,85-ageOut);c3l='Total gap to 85';c3v='$'+fmt(tg);c3c='danger';c3s='to fund fully to age 85';}
+  if(isSur){bCls='great';bT='Well funded — your income covers your expenses.';bS='$'+totalIncome.toLocaleString()+'/mo income exceeds $'+inflExp.toLocaleString()+'/mo expenses'+(age<65?' at 65':'')+'.';surT='+$'+fmt(surplus)+'/mo';surC='great';runT='Never';runC='great';c3l='Safe monthly spend after 65';c3v='$'+safeMo.toLocaleString();c3c='great';c3s='after $'+fmt(eBuf)+' buffer';}
+  else if(wellF){bCls='ok';bT='Strong position — savings comfortably cover the gap.';bS='$'+sav65.toLocaleString()+(age<65?' projected at 65':'')+' absorbs $'+fmt(shortfall)+'/mo shortfall.';surT='-$'+fmt(shortfall)+'/mo';surC='ok';runT=ageOut>=120?'Past 95':'Age '+ageOut;runC='ok';c3l='Safe monthly spend after 65';c3v='$'+safeMo.toLocaleString();c3c='ok';c3s='after $'+fmt(eBuf)+' buffer';}
+  else if(ageOut>=75){bCls='warn';bT='Manageable gap — some runway but not full coverage.';bS=age<65?'Acting now with '+(65-age)+' years to go gives you real options.':'Consider adding income to extend your runway.';surT='-$'+fmt(shortfall)+'/mo';surC='warn';runT='Age '+ageOut;runC='warn';c3l='You need to save an additional';c3v='$'+fmt(shortfall)+'/month';c3c='danger';c3s='to be fully funded by 65';}
+  else{bCls='danger';bT='Action needed — your retirement gap requires attention.';bS=age<65?'Acting now with '+(65-age)+' years ahead makes a significant difference.':'Savings run out at age '+ageOut+'.';surT='-$'+fmt(shortfall)+'/mo';surC='danger';runT='Age '+Math.min(ageOut,95);runC='danger';c3l='You need to save an additional';c3v='$'+fmt(shortfall)+'/month';c3c='danger';c3s='to be fully funded by 65';}
   const strip=extra>0?`<div class="income-strip show"><div class="is-item"><div class="is-label">CPF LIFE</div><div class="is-val">$${cpfPayout.toLocaleString()}</div></div><div class="is-sep">+</div><div class="is-item"><div class="is-label">Extra income</div><div class="is-val">+$${extra.toLocaleString()}</div></div><div class="is-sep">=</div><div class="is-item"><div class="is-label">Total monthly</div><div class="is-val">$${totalIncome.toLocaleString()}</div></div></div>`:'';
   document.getElementById('resArea').innerHTML=`<div class="ptitle" style="margin-bottom:.3rem">Your retirement gap</div><div class="psub">Based on your inputs.</div>${strip}<div class="banner ${bCls}"><div class="bt">${bT}</div><div class="bs">${bS}</div></div><div class="res-grid"><div class="rc"><div class="rl">Monthly surplus / gap</div><div class="rv ${surC}">${surT}</div><div class="rsub">at retirement</div></div><div class="rc"><div class="rl">Savings runway</div><div class="rv ${runC}">${runT}</div><div class="rsub">from age ${startAge}</div></div><div class="rc"><div class="rl">${c3l}</div><div class="rv ${c3c}">${c3v}</div><div class="rsub">${c3s}</div></div></div><div class="chart-legend"><span><span class="ldot" id="dot1" style="background:#1D9E75"></span>Savings balance</span><span><span class="ldash"></span>Emergency buffer</span></div><div class="chart-wrap"><canvas id="rwChart"></canvas></div>`;
   drawChart(sav65,shortfall>0?shortfall:0,eBuf,wellF||isSur,startAge);
@@ -557,22 +589,11 @@ function drawChart(sav65,shortfall,eBuf,isWell,startAge){
   if(myChart)myChart.destroy();
   myChart=new Chart(document.getElementById('rwChart'),{type:'line',data:{labels,datasets:[{label:'Savings balance',data:bal,borderColor:lc,backgroundColor:fc,fill:true,tension:.35,pointRadius:0,borderWidth:2},{label:'Emergency buffer',data:buf,borderColor:'#BA7517',borderDash:[5,4],pointRadius:0,borderWidth:1.5,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': $'+c.raw.toLocaleString()}}},scales:{x:{title:{display:true,text:'Age',color:tc,font:{size:11}},ticks:{color:tc,font:{size:11},maxTicksLimit:8},grid:{color:grid}},y:{ticks:{color:tc,font:{size:11},callback:fy},grid:{color:grid},min:0}}}});
 }
+function togIB(){const b=document.getElementById('incBody'),c=document.getElementById('incChev');b.classList.toggle('open');c.textContent=b.classList.contains('open')?'−':'+';}
+function togI(id){const tog=document.getElementById('itog_'+id),sl=document.getElementById('isl_'+id),am=document.getElementById('iam_'+id);iState[id].on=!iState[id].on;tog.classList.toggle('on',iState[id].on);sl.classList.toggle('show',iState[id].on);am.textContent=iState[id].on?'$'+iState[id].val.toLocaleString()+'/mo':'—';const ex=getEx(),t=document.getElementById('incTotal');if(t)t.textContent=ex>0?'+$'+ex.toLocaleString()+'/mo':'Tap to add';}
 function submitEmail(){
   const email=document.getElementById('ecEmail').value.trim();
   if(!email||!email.includes('@')){alert('Please enter a valid email address.');return;}
-  /*
-    WIRE UP YOUR EMAIL PROVIDER HERE:
-    Option A — ConvertKit (free up to 1,000 subs):
-      fetch('https://api.convertkit.com/v3/forms/YOUR_FORM_ID/subscribe',{
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({api_key:'YOUR_API_KEY',email,
-          fields:{gap:calcR.shortfall,age:calcR.age,plan:calcR.planName}})});
-    Option B — Buttondown (simplest, free up to 100):
-      fetch('https://api.buttondown.email/v1/subscribers',{
-        method:'POST',headers:{'Authorization':'Token YOUR_KEY','Content-Type':'application/json'},
-        body:JSON.stringify({email_address:email})});
-    Option C — store locally for now, export CSV once you pick a provider:
-  */
   try{const list=JSON.parse(localStorage.getItem('cpfplan_emails')||'[]');list.push({email,ts:new Date().toISOString(),gap:calcR.shortfall,age:calcR.age});localStorage.setItem('cpfplan_emails',JSON.stringify(list));}catch(e){}
   document.getElementById('ecEmail').style.display='none';document.querySelector('.ec-btn').style.display='none';document.getElementById('ecSuccess').style.display='block';
 }
