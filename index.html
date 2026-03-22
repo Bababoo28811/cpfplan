@@ -755,12 +755,13 @@ function showResults(){
   });
   expEvents.forEach(e=>{if(65>=e.age) effectiveExp+=e.delta;});
   effectiveExp=Math.max(0,effectiveExp);
-  const surplus=totalIncome-effectiveExp,shortfall=-surplus,eBuf=effectiveExp*24,invest=Math.max(0,sav65-eBuf),safeDraw=Math.round(invest/(30*12)),safeMo=totalIncome+safeDraw,comfUp=safeMo-effectiveExp;
+  // eBuf and comfUp always use base inflExp — buffer is for baseline lifestyle, not event-shifted one
+  const surplus=totalIncome-effectiveExp,shortfall=-surplus,eBuf=inflExp*24,invest=Math.max(0,sav65-eBuf),safeDraw=Math.round(invest/(30*12)),safeMo=totalIncome+safeDraw,comfUp=safeMo-inflExp;
   const startAge=age>=65?age:65;
   const {ageOut,yearlyBal}=simulateRunway(sav65,effectiveExp,totalIncome,startAge);
   // wellF/isSur derived from simulation ageOut + effective surplus
   const wellF=ageOut>=90||surplus>=0,isSur=surplus>=0;
-  calcR={age,expenses,shortfall,surplus,sav65,extra,totalIncome,inflExp:effectiveExp,ageOut,safeMo,comfUp,eBuf,isSur,wellF,startAge,planName,cpfPayout};
+  calcR={age,expenses,shortfall,surplus,sav65,extra,totalIncome,inflExp,effectiveExp,ageOut,safeMo,comfUp,eBuf,isSur,wellF,startAge,planName,cpfPayout};
   let bCls,bT,bS,surT,surC,runT,runC,c3l,c3v,c3c,c3s;
   if(isSur){bCls='great';bT='Well funded — your income covers your expenses.';bS='$'+totalIncome.toLocaleString()+'/mo income exceeds $'+inflExp.toLocaleString()+'/mo expenses'+(age<65?' at 65':'')+'.';surT='+$'+fmt(surplus)+'/mo';surC='great';runT='Never';runC='great';c3l='Safe monthly spend after 65';c3v='$'+safeMo.toLocaleString();c3c='great';c3s='after $'+fmt(eBuf)+' buffer';}
   else if(wellF){bCls='ok';bT='Strong position — savings comfortably cover the gap.';bS='$'+sav65.toLocaleString()+(age<65?' projected at 65':'')+' absorbs $'+fmt(shortfall)+'/mo shortfall.';surT='-$'+fmt(shortfall)+'/mo';surC='ok';runT=ageOut>=120?'Past 95':'Age '+ageOut;runC='ok';c3l='Safe monthly spend after 65';c3v='$'+safeMo.toLocaleString();c3c='ok';c3s='after $'+fmt(eBuf)+' buffer';}
